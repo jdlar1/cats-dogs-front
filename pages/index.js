@@ -1,51 +1,74 @@
+import React, {useState} from 'react'
 import Head from 'next/head';
 import styles from '../styles/Home.module.css';
 
+const API = 'http://127.0.0.1:8000/predict';
+
 export default function Home() {
+
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [prediction, setPrediction] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  const handleUpload = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+
+    console.log(selectedImage);
+
+    if (!selectedImage) return;
+
+    const data = new FormData();
+    data.append('upload', selectedImage);
+
+    const res = await fetch(API, 
+      {
+        method: 'POST',
+        body: data
+      }
+    ).then(res => res.json());
+
+    setPrediction(res.prediction);
+    setLoading(false);
+  }
+
   return (
     <div className={styles.container}>
       <Head>
-        <title>Create Next App</title>
+        <title>Cat Dog - Classifier</title>
         <link rel="icon" href="/favicon.ico" />
       </Head>
-
       <main>
         <h1 className={styles.title}>
-          Welcome to <a href="https://nextjs.org">Next.js!</a>
+            Cat Dog - Classifier
         </h1>
 
         <p className={styles.description}>
-          Get started by editing <code>pages/index.js</code>
+          Classifies images into cat or dog using CNN in Keras
         </p>
 
         <div className={styles.grid}>
-          <a href="https://nextjs.org/docs" className={styles.card}>
-            <h3>Documentation &rarr;</h3>
-            <p>Find in-depth information about Next.js features and API.</p>
-          </a>
-
-          <a href="https://nextjs.org/learn" className={styles.card}>
-            <h3>Learn &rarr;</h3>
-            <p>Learn about Next.js in an interactive course with quizzes!</p>
-          </a>
-
-          <a
-            href="https://github.com/vercel/next.js/tree/canary/examples"
-            className={styles.card}
-          >
-            <h3>Examples &rarr;</h3>
-            <p>Discover and deploy boilerplate example Next.js projects.</p>
-          </a>
-
-          <a
-            href="https://vercel.com/import?filter=next.js&utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className={styles.card}
-          >
-            <h3>Deploy &rarr;</h3>
-            <p>
-              Instantly deploy your Next.js site to a public URL with Vercel.
-            </p>
-          </a>
+          <div className={styles.card}>
+            <h3>Get started &rarr;</h3>
+            <p>To start upload an image from your device</p>
+            <input type="file" accept="image/*" onChange={e => setSelectedImage(e.target.files[0])} />
+            <button className={styles.upload} onClick={handleUpload} disabled={!selectedImage}>{loading ? "Loading..." : "Upload"}</button>
+            {
+              prediction && (
+                prediction == "cat" && (
+                  <p> Your image is a cat 🐱</p>
+                )
+                ||
+                prediction == "dog" && (
+                  <p> Your image is a dog 🐶</p>
+                )
+                ||
+                prediction == "error" && (
+                  <p>Not really sure what your image is ...</p>
+                )
+              )
+            }
+          </div>
         </div>
       </main>
 
@@ -101,6 +124,18 @@ export default function Home() {
             Bitstream Vera Sans Mono,
             Courier New,
             monospace;
+        }
+
+        input[type="file"] {
+          padding: 10px;
+          border: 1px solid #eaeaea;
+          border-radius: 5px;
+        }
+
+        input[type="file"]::file-selector-button {
+          padding: 10px;
+          border: 1px solid #eaeaea;
+          border-radius: 5px;
         }
       `}</style>
 
