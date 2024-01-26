@@ -2,7 +2,7 @@ import React, {useState} from 'react'
 import Head from 'next/head';
 import styles from '../styles/Home.module.css';
 
-const API = 'http://127.0.0.1:8000/predict';
+const API = 'https://whale-app-exn3i.ondigitalocean.app/predict';
 
 export default function Home() {
 
